@@ -24,15 +24,22 @@ Prerequisites: Node 20+, and a Postgres database. The quickest local Postgres:
 docker run -d --name qrtickets-pg \
   -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres -e POSTGRES_DB=qrtickets_test \
   -p 5432:5432 postgres:16
+# create a SEPARATE database for dev/demo so the test suite never wipes it:
+docker exec qrtickets-pg psql -U postgres -c "CREATE DATABASE qrtickets_dev;"
 ```
+
+> **Important:** the test suite wipes its database on every run. Keep dev/demo
+> and tests on **different** databases — dev on `qrtickets_dev`, tests on
+> `qrtickets_test` (the default in `tests/setup.ts`). Otherwise `npm test` will
+> delete your seeded admin and demo data.
 
 Then:
 
 ```bash
 cp .env.example .env
-# set DATABASE_URL to your Postgres, and generate a session secret:
+# set DATABASE_URL to the DEV database (…/qrtickets_dev) and a session secret:
 #   openssl rand -base64 48
-npx prisma migrate dev          # apply schema
+npx prisma migrate dev          # apply schema to the dev DB
 ADMIN_EMAIL=you@example.com ADMIN_PASSWORD=strongpass npm run prisma:seed
 npm run dev                     # http://localhost:3000
 ```
@@ -41,12 +48,13 @@ Log in at `/login` with the admin credentials you seeded.
 
 ## Running tests
 
-Tests run against a real Postgres database (they read/write real rows).
+Tests run against a real Postgres database (they read/write and **delete** real
+rows), so they must use their own throwaway DB — never your dev/prod one.
 
 ```bash
-# point DATABASE_URL at a throwaway DB, then:
-npx prisma migrate deploy
-npm test
+# apply the schema to the test DB once:
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/qrtickets_test" npx prisma migrate deploy
+npm test    # tests/setup.ts defaults DATABASE_URL to qrtickets_test
 ```
 
 ## Deployment (Vercel + Supabase/Neon)

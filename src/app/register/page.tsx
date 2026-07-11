@@ -13,7 +13,12 @@ export default function Register() {
       r.push('/ticket');
     } else {
       const b = await res.json();
-      setErr(b.code === 'CLOSED' ? 'Registration is closed.' : b.code === 'FULL' ? 'Event is sold out.' : b.error);
+      setErr(
+        b.code === 'CLOSED' ? 'Registration is closed.'
+        : b.code === 'FULL' ? 'Event is sold out.'
+        : b.code === 'EMAIL_TAKEN' ? 'That email is already registered.'
+        : b.error
+      );
     }
   }
   const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) => setF({ ...f, [k]: e.target.value });
@@ -25,7 +30,7 @@ export default function Register() {
         <input required type="email" placeholder="Email" value={f.email} onChange={set('email')} />
         <input required placeholder="Phone" value={f.phone} onChange={set('phone')} />
         <input required placeholder="Bank transfer reference" value={f.paymentReference} onChange={set('paymentReference')} />
-        <input required type="password" placeholder="Password" value={f.password} onChange={set('password')} />
+        <input required type="password" minLength={8} placeholder="Password (min 8 characters)" value={f.password} onChange={set('password')} />
         <button type="submit">Register</button>
       </form>
       {err && <p style={{ color: 'crimson' }}>{err}</p>}

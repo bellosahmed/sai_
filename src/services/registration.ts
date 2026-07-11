@@ -2,8 +2,10 @@ import { prisma } from '@/lib/db';
 import { hashPassword } from '@/services/auth';
 import { normalizeEmail } from '@/lib/email';
 
+export const MIN_PASSWORD_LENGTH = 8;
+
 export class RegistrationError extends Error {
-  constructor(public code: 'CLOSED' | 'FULL' | 'EMAIL_TAKEN', msg: string) {
+  constructor(public code: 'CLOSED' | 'FULL' | 'EMAIL_TAKEN' | 'WEAK_PASSWORD', msg: string) {
     super(msg);
   }
 }
@@ -11,6 +13,9 @@ export class RegistrationError extends Error {
 export async function registerAttendee(input: {
   email: string; password: string; fullName: string; phone: string; paymentReference: string;
 }) {
+  if (!input.password || input.password.length < MIN_PASSWORD_LENGTH)
+    throw new RegistrationError('WEAK_PASSWORD', `Password must be at least ${MIN_PASSWORD_LENGTH} characters`);
+
   const settings = await prisma.eventSettings.findUnique({ where: { id: 1 } });
   if (!settings || !settings.registrationOpen)
     throw new RegistrationError('CLOSED', 'Registration is closed');

@@ -27,6 +27,10 @@ describe('registerAttendee', () => {
     await expect(registerAttendee({ ...base, email: 'dupe@y.com' }))
       .rejects.toMatchObject({ code: 'EMAIL_TAKEN' });
   });
+  it('rejects a too-short password', async () => {
+    await expect(registerAttendee({ ...base, email: 'weak@y.com', password: 'short' }))
+      .rejects.toMatchObject({ code: 'WEAK_PASSWORD' });
+  });
   it('rejects when registration is closed', async () => {
     await prisma.eventSettings.update({ where: { id: 1 }, data: { registrationOpen: false } });
     await expect(registerAttendee({ ...base, email: 'z@y.com' }))

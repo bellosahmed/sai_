@@ -8,8 +8,10 @@ export async function POST(req: Request) {
     const r = await registerAttendee(b);
     return NextResponse.json({ registrationId: r.registrationId }, { status: 201 });
   } catch (e) {
-    if (e instanceof RegistrationError)
-      return NextResponse.json({ error: e.message, code: e.code }, { status: 409 });
+    if (e instanceof RegistrationError) {
+      const status = e.code === 'WEAK_PASSWORD' ? 400 : 409;
+      return NextResponse.json({ error: e.message, code: e.code }, { status });
+    }
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }

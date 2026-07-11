@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db';
 import { hashPassword } from '@/services/auth';
+import { normalizeEmail } from '@/lib/email';
 
 export class RegistrationError extends Error {
   constructor(public code: 'CLOSED' | 'FULL' | 'EMAIL_TAKEN', msg: string) {
@@ -18,12 +19,13 @@ export async function registerAttendee(input: {
   if (approvedCount >= settings.capacity)
     throw new RegistrationError('FULL', 'Event is at capacity');
 
-  const existing = await prisma.user.findUnique({ where: { email: input.email } });
+  const email = normalizeEmail(input.email);
+  const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) throw new RegistrationError('EMAIL_TAKEN', 'Email already registered');
 
   const user = await prisma.user.create({
     data: {
-      email: input.email,
+      email,
       passwordHash: await hashPassword(input.password),
       role: 'attendee',
       registration: {

@@ -2,6 +2,7 @@ import { prisma } from '@/lib/db';
 import { getEventStats } from '@/services/stats';
 import PendingList from './PendingList';
 import AdminControls from './AdminControls';
+import GuestManager from './GuestManager';
 
 export const dynamic = 'force-dynamic';
 export default async function Admin() {
@@ -22,6 +23,7 @@ export default async function Admin() {
       <AdminControls open={stats.registrationOpen} capacity={stats.capacity} />
       <h2>Pending payments</h2>
       <PendingList items={pending} />
+      <GuestManager />
     </main>
   );
 }

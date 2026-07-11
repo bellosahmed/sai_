@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Event QR Ticketing
 
-## Getting Started
+A single-event web app: attendees register, an admin manually verifies their bank
+transfer and issues a **unique per-person QR ticket**, and gate staff scan each QR
+to check attendees in **exactly once**.
 
-First, run the development server:
+Built with Next.js (App Router) + Prisma + Postgres. Designed to run on free tiers
+(Vercel + Supabase/Neon) at **$0/month**.
+
+## Roles
+
+- **Attendee** — registers, logs in, views ticket status and QR code at `/ticket`.
+- **Admin** — verifies transfers and approves/rejects at `/admin`; manages capacity,
+  registration open/close, and gate-staff accounts.
+- **Gate staff** — scans QR codes at the door at `/scan`.
+
+## Local development
+
+Prerequisites: Node 20+, and a Postgres database. The quickest local Postgres:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+docker run -d --name qrtickets-pg \
+  -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres -e POSTGRES_DB=qrtickets_test \
+  -p 5432:5432 postgres:16
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+cp .env.example .env
+# set DATABASE_URL to your Postgres, and generate a session secret:
+#   openssl rand -base64 48
+npx prisma migrate dev          # apply schema
+ADMIN_EMAIL=you@example.com ADMIN_PASSWORD=strongpass npm run prisma:seed
+npm run dev                     # http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Log in at `/login` with the admin credentials you seeded.
 
-## Learn More
+## Running tests
 
-To learn more about Next.js, take a look at the following resources:
+Tests run against a real Postgres database (they read/write real rows).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+# point DATABASE_URL at a throwaway DB, then:
+npx prisma migrate deploy
+npm test
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deployment (Vercel + Supabase/Neon)
 
-## Deploy on Vercel
+1. **Database:** create a free Supabase or Neon Postgres project. Copy its connection
+   string (the pooled/`DATABASE_URL` value).
+2. **Apply schema once** against the production DB:
+   `DATABASE_URL="<prod-url>" npx prisma migrate deploy`
+   then seed the admin + event settings:
+   `DATABASE_URL="<prod-url>" ADMIN_EMAIL=... ADMIN_PASSWORD=... npm run prisma:seed`
+3. **Vercel:** create a project from this repo. Set environment variables:
+   - `DATABASE_URL` = production connection string
+   - `SESSION_SECRET` = output of `openssl rand -base64 48`
+4. Deploy. `prisma generate` runs automatically via the `build`/`postinstall` scripts.
+5. (Optional) add a custom domain in Vercel.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Operational notes
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **The scanning phone needs internet** (venue wifi or mobile data) — check-in is
+  verified server-side on each scan.
+- **Password reset is admin-assisted** for launch (no outbound email). To reset a
+  user, update their `passwordHash` directly (e.g. via a one-off script using
+  `bcrypt.hash`).
+- **Capacity** and **registration open/close** are controlled from `/admin`.
+
+## Event-day manual test checklist
+
+1. Register an attendee → `/ticket` shows "Payment under review".
+2. Admin logs in → sees the pending registration → **Approve** → attendee `/ticket`
+   now shows the QR code + `TICK-####` reference.
+3. Staff logs in → `/scan` → scan the attendee QR → ✅ name shown, count increments.
+4. Scan the same QR again → ⚠️ "Already used".
+5. Scan a random/garbage QR → ❌ "Invalid ticket".
+6. Set capacity to the current approved count → approving another registration →
+   "At capacity".
+7. Close registration → a new registration attempt → "Registration is closed."
+8. A non-admin visiting `/admin` and a non-staff visiting `/scan` are redirected to
+   `/login`.

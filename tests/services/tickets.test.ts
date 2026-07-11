@@ -7,8 +7,13 @@ describe('ticket helpers', () => {
     expect(a).toMatch(/^[0-9a-f]{64}$/);
     expect(a).not.toBe(b);
   });
-  it('generates TICK-#### reference codes', () => {
-    expect(generateReferenceCode()).toMatch(/^TICK-\d{4}$/);
+  it('generates high-entropy TICK-XXXXXX reference codes', () => {
+    expect(generateReferenceCode()).toMatch(/^TICK-[A-Z2-9]{6}$/);
+  });
+  it('produces distinct codes at event scale (no collisions in 5000)', () => {
+    const codes = new Set<string>();
+    for (let i = 0; i < 5000; i++) codes.add(generateReferenceCode());
+    expect(codes.size).toBe(5000);
   });
   it('renders a PNG data url', async () => {
     const url = await generateQrDataUrl('abc');

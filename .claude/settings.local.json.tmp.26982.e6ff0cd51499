@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git -c user.name=Claude -c user.email=noreply@anthropic.com commit -q -m 'Add QR ticketing web app design spec *)",
+      "Bash(git -c user.name=Claude -c user.email=noreply@anthropic.com commit -q -m 'Add QR ticketing implementation plan *)",
+      "Bash(git checkout *)",
+      "Bash(docker rm *)",
+      "Bash(docker run *)",
+      "Bash(docker exec *)",
+      "Bash(break)",
+      "Bash(npx --yes create-next-app@latest . --ts --app --no-tailwind --no-src-dir --eslint --use-npm --yes --disable-git)",
+      "Bash(git mv *)",
+      "Bash(npm install *)",
+      "Bash(npm test *)",
+      "Bash(git check-ignore *)",
+      "Bash(git -c user.name=Claude -c user.email=noreply@anthropic.com commit -q -m 'chore: scaffold Next.js app with vitest and env loader *)",
+      "Bash(npx prisma *)",
+      "Bash(npm run *)",
+      "Bash(git -c user.name=Claude -c user.email=noreply@anthropic.com commit -q -m 'feat: add prisma schema, client, and seed \\(Prisma 6\\) *)"
+    ]
+  }
+}

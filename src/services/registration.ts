@@ -36,6 +36,7 @@ export async function registerAttendee(input: {
       registration: {
         create: {
           fullName: input.fullName,
+          email,
           phone: input.phone,
           paymentReference: input.paymentReference,
         },

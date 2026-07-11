@@ -78,6 +78,8 @@ npm test
 3. Staff logs in → `/scan` → scan the attendee QR → ✅ name shown, count increments.
 4. Scan the same QR again → ⚠️ "Already used".
 5. Scan a random/garbage QR → ❌ "Invalid ticket".
+5b. **Manual fallback:** on `/scan`, type the attendee's `TICK-XXXXXX` code
+    (case-insensitive, prefix optional) → ✅ checks them in the same way.
 6. Set capacity to the current approved count → approving another registration →
    "At capacity".
 7. Close registration → a new registration attempt → "Registration is closed."

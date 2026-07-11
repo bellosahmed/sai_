@@ -11,7 +11,9 @@ Built with Next.js (App Router) + Prisma + Postgres. Designed to run on free tie
 
 - **Attendee** — registers, logs in, views ticket status and QR code at `/ticket`.
 - **Admin** — verifies transfers and approves/rejects at `/admin`; manages capacity,
-  registration open/close, and gate-staff accounts.
+  registration open/close, and gate-staff accounts. Can also search the full guest
+  roster, add a guest directly (instant ticket, no login), view/share any guest's QR
+  via a public `/t/<token>` link, and remove a guest (frees a capacity slot).
 - **Gate staff** — scans QR codes at the door at `/scan`.
 
 ## Local development

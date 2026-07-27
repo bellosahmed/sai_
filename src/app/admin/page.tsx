@@ -3,6 +3,7 @@ import { getEventStats } from '@/services/stats';
 import PendingList from './PendingList';
 import AdminControls from './AdminControls';
 import GuestManager from './GuestManager';
+import LogoutButton from '../LogoutButton';
 
 export const dynamic = 'force-dynamic';
 export default async function Admin() {
@@ -13,6 +14,7 @@ export default async function Admin() {
   });
   return (
     <main style={{ maxWidth: 720, margin: '2rem auto', fontFamily: 'system-ui' }}>
+      <LogoutButton />
       <h1>Admin dashboard</h1>
       <ul style={{ display: 'flex', gap: 16, listStyle: 'none', padding: 0 }}>
         <li>Registered: {stats.registered}</li>

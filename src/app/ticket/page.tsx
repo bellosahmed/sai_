@@ -2,6 +2,7 @@ import { getCurrentUser } from '@/session/current-user';
 import { prisma } from '@/lib/db';
 import { generateQrDataUrl } from '@/services/tickets';
 import { redirect } from 'next/navigation';
+import LogoutButton from '../LogoutButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,6 +18,7 @@ export default async function TicketPage() {
   const qr = await generateQrDataUrl(reg.ticket!.qrToken);
   return (
     <main style={{ maxWidth: 420, margin: '3rem auto', textAlign: 'center', fontFamily: 'system-ui' }}>
+      <LogoutButton />
       <h1>You&apos;re in, {reg.fullName.split(' ')[0]}!</h1>
       <p>Show this at the door.</p>
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -28,6 +30,7 @@ export default async function TicketPage() {
 function Msg({ title, body }: { title: string; body?: string }) {
   return (
     <main style={{ maxWidth: 420, margin: '4rem auto', textAlign: 'center', fontFamily: 'system-ui' }}>
+      <LogoutButton />
       <h1>{title}</h1>{body && <p>{body}</p>}
     </main>
   );

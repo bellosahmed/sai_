@@ -5,7 +5,7 @@ async function main() {
   await prisma.eventSettings.upsert({
     where: { id: 1 },
     update: {},
-    create: { id: 1, eventName: 'My Event', capacity: 500, registrationOpen: true },
+    create: { id: 1, eventName: 'My Event', capacity: 800, registrationOpen: true },
   });
   const email = process.env.ADMIN_EMAIL ?? 'admin@example.com';
   const pass = process.env.ADMIN_PASSWORD ?? 'changeme123';

@@ -7,6 +7,12 @@ export async function POST(req: Request) {
   if (!user) return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
   const token = await createSession(user);
   const res = NextResponse.json({ role: user.role });
-  res.cookies.set(SESSION_COOKIE, token, { httpOnly: true, sameSite: 'lax', path: '/', maxAge: 60 * 60 * 24 * 7 });
+  res.cookies.set(SESSION_COOKIE, token, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/',
+    maxAge: 60 * 60 * 24 * 7,
+  });
   return res;
 }

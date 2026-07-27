@@ -19,4 +19,10 @@ describe('ticket helpers', () => {
     const url = await generateQrDataUrl('abc');
     expect(url.startsWith('data:image/png;base64,')).toBe(true);
   });
+  it('renders at 800px for a sharper/larger printed or projected code', async () => {
+    const url = await generateQrDataUrl('abc');
+    const png = Buffer.from(url.split(',')[1], 'base64');
+    const width = png.readUInt32BE(16); // PNG IHDR: width is the first 4 bytes after the 16-byte header
+    expect(width).toBe(800);
+  });
 });

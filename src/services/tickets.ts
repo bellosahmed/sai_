@@ -14,5 +14,5 @@ export function generateReferenceCode(): string {
   return `TICK-${code}`;
 }
 export function generateQrDataUrl(token: string): Promise<string> {
-  return QRCode.toDataURL(token, { errorCorrectionLevel: 'M', margin: 2, width: 320 });
+  return QRCode.toDataURL(token, { errorCorrectionLevel: 'M', margin: 2, width: 800 });
 }

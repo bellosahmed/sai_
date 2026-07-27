@@ -14,5 +14,13 @@ async function main() {
     update: {},
     create: { email, passwordHash: await bcrypt.hash(pass, 10), role: 'admin' },
   });
+
+  const staffEmail = process.env.STAFF_EMAIL ?? 'gate@example.com';
+  const staffPass = process.env.STAFF_PASSWORD ?? 'changeme123';
+  await prisma.user.upsert({
+    where: { email: staffEmail },
+    update: {},
+    create: { email: staffEmail, passwordHash: await bcrypt.hash(staffPass, 10), role: 'staff' },
+  });
 }
 main().finally(() => prisma.$disconnect());

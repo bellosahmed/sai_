@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db';
 import { generateQrDataUrl } from '@/services/tickets';
 import { redirect } from 'next/navigation';
 import LogoutButton from '../LogoutButton';
+import Badge from '../Badge';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,13 +18,16 @@ export default async function TicketPage() {
   if (reg.status === 'rejected') return <Msg title="Payment not verified" body="We couldn't verify your payment — please contact us." />;
   const qr = await generateQrDataUrl(reg.ticket!.qrToken);
   return (
-    <main style={{ maxWidth: 420, margin: '3rem auto', textAlign: 'center', fontFamily: 'system-ui' }}>
-      <LogoutButton />
-      <h1>You&apos;re in, {reg.fullName.split(' ')[0]}!</h1>
-      <p>Show this at the door.</p>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={qr} alt="Your ticket QR code" style={{ width: 320, height: 320 }} />
-      <p><strong>{reg.ticket!.referenceCode}</strong></p>
+    <main style={{ fontFamily: 'system-ui' }}>
+      <div className="no-print" style={{ maxWidth: 420, margin: '0 auto', padding: '1rem 1rem 0', textAlign: 'right' }}>
+        <LogoutButton />
+      </div>
+      <Badge
+        fullName={reg.fullName}
+        qr={qr}
+        referenceCode={reg.ticket!.referenceCode}
+        checkedIn={!!reg.ticket!.checkedInAt}
+      />
     </main>
   );
 }

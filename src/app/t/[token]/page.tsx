@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/db';
 import { generateQrDataUrl } from '@/services/tickets';
-import Badge from './Badge';
+import Badge from '../../Badge';
 
 export const dynamic = 'force-dynamic';
 

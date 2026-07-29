@@ -13,13 +13,36 @@ export default function Badge({ fullName, qr, referenceCode, checkedIn }: Props)
 
   return (
     <div style={{ maxWidth: 420, margin: '3rem auto', textAlign: 'center', fontFamily: 'system-ui', padding: '0 1rem' }}>
+      <style>{`
+        @media print {
+          .no-print { display: none !important; }
+          .badge-outer { perspective: none !important; height: auto !important; }
+          .badge-inner {
+            transform: none !important;
+            position: static !important;
+            height: auto !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 24px !important;
+          }
+          .badge-face {
+            position: static !important;
+            transform: none !important;
+            backface-visibility: visible !important;
+          }
+          .badge-face.back { break-before: page; }
+        }
+      `}</style>
+
       <div
+        className="badge-outer"
         onClick={() => setFlipped((f) => !f)}
         role="button"
         aria-label="Flip ticket card"
         style={{ width: 320, height: 480, margin: '0 auto', perspective: 1200, cursor: 'pointer' }}
       >
         <div
+          className="badge-inner"
           style={{
             position: 'relative',
             width: '100%',
@@ -31,6 +54,7 @@ export default function Badge({ fullName, qr, referenceCode, checkedIn }: Props)
         >
           {/* Front */}
           <div
+            className="badge-face front"
             style={{
               position: 'absolute', inset: 0,
               backfaceVisibility: 'hidden',
@@ -65,6 +89,7 @@ export default function Badge({ fullName, qr, referenceCode, checkedIn }: Props)
 
           {/* Back */}
           <div
+            className="badge-face back"
             style={{
               position: 'absolute', inset: 0,
               backfaceVisibility: 'hidden',
@@ -99,7 +124,16 @@ export default function Badge({ fullName, qr, referenceCode, checkedIn }: Props)
           </div>
         </div>
       </div>
-      <p style={{ fontSize: 12, color: '#888', marginTop: 16 }}>Tap the card to flip.</p>
+
+      <p className="no-print" style={{ fontSize: 12, color: '#888', marginTop: 16 }}>Tap the card to flip.</p>
+
+      <button
+        className="no-print"
+        onClick={() => window.print()}
+        style={{ marginTop: 8, padding: '8px 20px', fontSize: 14, cursor: 'pointer' }}
+      >
+        🖨️ Print ticket
+      </button>
     </div>
   );
 }

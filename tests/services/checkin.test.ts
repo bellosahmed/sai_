@@ -29,6 +29,21 @@ describe('checkIn', () => {
     const r = await checkIn(qrToken, staffId);
     expect(r).toMatchObject({ status: 'ok', fullName: 'Jane Doe' });
   });
+  it('includes the ticket\'s sequential number on success', async () => {
+    const { staffId, qrToken } = await issued();
+    const r = await checkIn(qrToken, staffId);
+    expect(r).toMatchObject({ status: 'ok' });
+    expect((r as { ticketNumber: number }).ticketNumber).toBeGreaterThan(0);
+  });
+  it('assigns increasing ticket numbers as tickets are issued', async () => {
+    const a = await issued();
+    const b = await issued();
+    const ra = await checkIn(a.qrToken, a.staffId);
+    const rb = await checkIn(b.qrToken, b.staffId);
+    const na = (ra as { ticketNumber: number }).ticketNumber;
+    const nb = (rb as { ticketNumber: number }).ticketNumber;
+    expect(nb).toBe(na + 1);
+  });
   it('reports already_used on second scan', async () => {
     const { staffId, qrToken } = await issued();
     await checkIn(qrToken, staffId);

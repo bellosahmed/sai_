@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db';
 import { generateQrDataUrl } from '@/services/tickets';
+import Badge from './Badge';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,13 +19,11 @@ export default async function SharedTicket({ params }: { params: Promise<{ token
   }
   const qr = await generateQrDataUrl(ticket.qrToken);
   return (
-    <main style={{ maxWidth: 420, margin: '3rem auto', textAlign: 'center', fontFamily: 'system-ui' }}>
-      <h1>{ticket.registration.fullName}</h1>
-      <p>Show this at the door.</p>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={qr} alt="Ticket QR code" style={{ width: 320, height: 320 }} />
-      <p><strong>{ticket.referenceCode}</strong></p>
-      {ticket.checkedInAt && <p style={{ color: '#b8860b' }}>Checked in.</p>}
-    </main>
+    <Badge
+      fullName={ticket.registration.fullName}
+      qr={qr}
+      referenceCode={ticket.referenceCode}
+      checkedIn={!!ticket.checkedInAt}
+    />
   );
 }

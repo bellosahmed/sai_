@@ -2,8 +2,8 @@ import { prisma } from '@/lib/db';
 import type { Prisma } from '@prisma/client';
 
 export type CheckInResult =
-  | { status: 'ok'; fullName: string; referenceCode: string }
-  | { status: 'already_used'; fullName: string; checkedInAt: Date }
+  | { status: 'ok'; fullName: string; referenceCode: string; ticketNumber: number }
+  | { status: 'already_used'; fullName: string; checkedInAt: Date; ticketNumber: number }
   | { status: 'invalid' };
 
 type TicketWithReg = Prisma.TicketGetPayload<{ include: { registration: true } }>;
@@ -16,10 +16,20 @@ async function performCheckIn(ticket: TicketWithReg, staffId: string): Promise<C
     data: { checkedInAt: new Date(), checkedInById: staffId },
   });
   if (res.count === 1) {
-    return { status: 'ok', fullName: ticket.registration.fullName, referenceCode: ticket.referenceCode };
+    return {
+      status: 'ok',
+      fullName: ticket.registration.fullName,
+      referenceCode: ticket.referenceCode,
+      ticketNumber: ticket.ticketNumber,
+    };
   }
   const used = await prisma.ticket.findUnique({ where: { id: ticket.id }, include: { registration: true } });
-  return { status: 'already_used', fullName: used!.registration.fullName, checkedInAt: used!.checkedInAt! };
+  return {
+    status: 'already_used',
+    fullName: used!.registration.fullName,
+    checkedInAt: used!.checkedInAt!,
+    ticketNumber: used!.ticketNumber,
+  };
 }
 
 export async function checkIn(qrToken: string, staffId: string): Promise<CheckInResult> {

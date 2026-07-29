@@ -45,6 +45,7 @@ model Registration {
 
 model Ticket {
   id             String       @id @default(cuid())
+  ticketNumber   Int          @unique @default(autoincrement())
   registrationId String       @unique
   registration   Registration @relation(fields: [registrationId], references: [id])
   referenceCode  String       @unique

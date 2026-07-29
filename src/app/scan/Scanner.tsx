@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
 
-type Result = { status: string; fullName?: string; checkedInAt?: string; referenceCode?: string };
+type Result = { status: string; fullName?: string; checkedInAt?: string; referenceCode?: string; ticketNumber?: number };
 export default function Scanner() {
   const [result, setResult] = useState<Result | null>(null);
   const [count, setCount] = useState(0);
@@ -53,6 +53,9 @@ export default function Scanner() {
     <div>
       <div id={divId} style={{ width: '100%' }} />
       <p style={{ color, fontSize: 24, fontWeight: 700 }}>{label}</p>
+      {typeof result?.ticketNumber === 'number' && (
+        <p style={{ color, fontSize: 40, fontWeight: 800, margin: '4px 0 12px' }}>#{result.ticketNumber}</p>
+      )}
 
       <form onSubmit={submitManual} style={{ margin: '1rem 0', display: 'grid', gap: 6 }}>
         <label style={{ fontSize: 14, color: '#555' }}>QR not working? Enter the ticket code:</label>
